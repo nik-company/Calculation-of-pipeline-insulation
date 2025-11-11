@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Калькулятор изоляции — Сутягин Максим</title>
+  <style>
+    :root {
+      --accent1: #4f46e5;
+      --accent2: #ec4899;
+      --bg1: #f8fafc;
+      --bg2: #f0f9ff;
+      --text: #1e293b;
+      --muted: #64748b;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, var(--bg1), var(--bg2));
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      width: 100%;
+      padding: 30px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      color: var(--text);
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    h1 span {
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 30px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 15px;
+    }
+
+    label {
+      color: var(--text);
+      font-weight: 500;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: border 0.2s ease;
+      box-sizing: border-box;
+      margin-bottom: 5px;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent1);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    .results {
+      background: #f9fafb;
+      border-radius: 15px;
+      padding: 20px;
+      margin-top: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .results div {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .results span {
+      color: var(--text);
+    }
+
+    .results strong {
+      font-family: monospace;
+      color: var(--text);
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .copy {
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      color: white;
+    }
+
+    .reset {
+      background: white;
+      color: var(--text);
+      border: 1px solid #e2e8f0;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 30px;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.5rem; }
+      .container { padding: 20px; }
+      .results div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span>Расчет изоляции трубопроводов</span></h1>
+    <p class="subtitle">Вычисление объёма, площади изоляции и расхода материалов для трубопровода</p>
+
+    <div class="grid">
+      <div>
+        <label>D — диаметр трубопровода</label>
+        <input type="number" id="r1" value="" step="0.001" min="0" />
+        <select id="r1Unit">
+          <option value="1">м</option>
+          <option value="0.1">дм</option>
+          <option value="0.01">см</option>
+          <option value="0.001">мм</option>
+          <option value="1000">км</option>
+        </select>
+      </div>
+      <div>
+        <label>r₂ — толщина изоляции</label>
+        <input type="number" id="r2" value="" step="0.001" min="0" />
+        <select id="r2Unit">
+          <option value="1">м</option>
+          <option value="0.1">дм</option>
+          <option value="0.01">см</option>
+          <option value="0.001">мм</option>
+          <option value="1000">км</option>
+        </select>
+      </div>
+      <div>
+        <label>L — длина трубопровода</label>
+        <input type="number" id="L" value="1" step="0.01" min="0" />
+        <select id="LUnit">
+          <option value="1">м</option>
+          <option value="0.1">дм</option>
+          <option value="0.01">см</option>
+          <option value="0.001">мм</option>
+          <option value="1000">км</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="results">
+      <div>
+        <span>Внешний радиус (R = D/2 + r₂):</span>
+        <strong id="outerR">—</strong>
+        <select id="outerUnit">
+          <option value="1">м</option>
+          <option value="0.1">дм</option>
+          <option value="0.01">см</option>
+          <option value="0.001">мм</option>
+          <option value="1000">км</option>
+        </select>
+      </div>
+
+      <div>
+        <span>Объём изоляции V:</span>
+        <strong id="V">—</strong>
+        <select id="VUnit">
+          <option value="1">м³</option>
+          <option value="0.001">дм³</option>
+          <option value="0.000001">см³</option>
+          <option value="1e-9">мм³</option>
+          <option value="1e9">км³</option>
+        </select>
+      </div>
+
+      <div>
+        <span>Площадь поверхности S:</span>
+        <strong id="S">—</strong>
+        <select id="SUnit">
+          <option value="1">м²</option>
+          <option value="0.01">дм²</option>
+          <option value="0.0001">см²</option>
+          <option value="1e-6">мм²</option>
+          <option value="1e6">км²</option>
+        </select>
+      </div>
+
+      <div>
+        <span>Суммарная площадь кожуха (S × 1,2):</span>
+        <strong id="S_total">—</strong>
+        <select id="S_totalUnit">
+          <option value="1">м²</option>
+          <option value="0.01">дм²</option>
+          <option value="0.0001">см²</option>
+          <option value="1e-6">мм²</option>
+          <option value="1e6">км²</option>
+        </select>
+      </div>
+
+      <div>
+        <span>Количество саморезов (5 шт/м):</span>
+        <strong id="screws">—</strong>
+        <span>шт</span>
+      </div>
+
+      <div style="font-size:0.8rem;color:#94a3b8;margin-top:8px;">
+        Формулы: V = π((R)² − (D/2)²)L, S = 2π(R)L
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button class="copy" onclick="copyResults()">Скопировать результаты</button>
+      <button class="reset" onclick="resetValues()">Сброс</button>
+    </div>
+
+    <footer>© Сутягин Никита | Расчет изоляции трубопроводов</footer>
+  </div>
+
+  <script>
+    const r1Input = document.getElementById('r1'); // Диаметр
+    const r2Input = document.getElementById('r2');
+    const LInput = document.getElementById('L');
+    const r1Unit = document.getElementById('r1Unit');
+    const r2Unit = document.getElementById('r2Unit');
+    const LUnit = document.getElementById('LUnit');
+
+    const outerField = document.getElementById('outerR');
+    const VField = document.getElementById('V');
+    const SField = document.getElementById('S');
+    const S_totalField = document.getElementById('S_total');
+    const screwsField = document.getElementById('screws');
+
+    const outerUnit = document.getElementById('outerUnit');
+    const VUnit = document.getElementById('VUnit');
+    const SUnit = document.getElementById('SUnit');
+    const S_totalUnit = document.getElementById('S_totalUnit');
+
+    function format(x) {
+      return Number(x).toLocaleString('ru-RU', { maximumFractionDigits: 6 });
+    }
+
+    function calculate() {
+      const D_m = (parseFloat(r1Input.value) || 0) * parseFloat(r1Unit.value); // Диаметр
+      const r2_m = (parseFloat(r2Input.value) || 0) * parseFloat(r2Unit.value);
+      const L_m = (parseFloat(LInput.value) || 0) * parseFloat(LUnit.value);
+
+      const r1_m = D_m / 2; // радиус трубы
+      const outer_m = r1_m + r2_m;
+      const V_m3 = Math.PI * ((outer_m ** 2 - r1_m ** 2) * L_m);
+      const S_m2 = 2 * Math.PI * outer_m * L_m;
+
+      const S_total_m2 = S_m2 * 1.2; // +20%
+      const screws = 5 * L_m; // 5 шт/м
+
+      outerField.textContent = format(outer_m / parseFloat(outerUnit.value));
+      VField.textContent = format(V_m3 / parseFloat(VUnit.value));
+      SField.textContent = format(S_m2 / parseFloat(SUnit.value));
+      S_totalField.textContent = format(S_total_m2 / parseFloat(S_totalUnit.value));
+      screwsField.textContent = format(screws);
+    }
+
+    function copyResults() {
+      const text = `Внешний радиус: ${outerField.textContent} ${outerUnit.options[outerUnit.selectedIndex].text}
+V = ${VField.textContent} ${VUnit.options[VUnit.selectedIndex].text}
+S = ${SField.textContent} ${SUnit.options[SUnit.selectedIndex].text}
+Суммарная площадь кожуха: ${S_totalField.textContent} ${S_totalUnit.options[S_totalUnit.selectedIndex].text}
+Саморезы: ${screwsField.textContent} шт`;
+      navigator.clipboard.writeText(text);
+    }
+
+    function resetValues() {
+      r1Input.value = '';
+      r2Input.value = '';
+      LInput.value = '1';
+      calculate();
+    }
+
+    [r1Input, r2Input, LInput, r1Unit, r2Unit, LUnit, outerUnit, VUnit, SUnit, S_totalUnit].forEach(el => el.addEventListener('input', calculate));
+    [outerUnit, VUnit, SUnit, S_totalUnit].forEach(el => el.addEventListener('change', calculate));
+    calculate();
+  </script>
+</body>
+</html>
