@@ -260,7 +260,8 @@
       </div>
 
       <div style="font-size:0.8rem;color:#94a3b8;margin-top:8px;">
-        Формулы: V = π((R)² − (D/2)²)L, S = 2π(R)L
+        Формулы: V = [π × (r1 + r2)2] - [π × r12] × L,
+        S = 2π × (r1 +r2) × L
       </div>
     </div>
 
@@ -306,7 +307,7 @@
       const S_m2 = 2 * Math.PI * outer_m * L_m;
 
       const S_total_m2 = S_m2 * 1.2; // +20%
-      const screws = 5 * L_m; // 5 шт/м
+      const screws = Math.ceil(5 * L_m);
 
       outerField.textContent = format(outer_m / parseFloat(outerUnit.value));
       VField.textContent = format(V_m3 / parseFloat(VUnit.value));
@@ -337,6 +338,3 @@ S = ${SField.textContent} ${SUnit.options[SUnit.selectedIndex].text}
   </script>
 </body>
 </html>
-
-
-
